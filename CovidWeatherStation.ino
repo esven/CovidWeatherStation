@@ -141,12 +141,10 @@ void setup() {
     Serial.println("Init FAILURE: halting");
     while (true) {};
   }
-  Serial.println(F("LED Driver initialized"));
   if (digitalLeds_addStrands((strand_t**) &stripes, 1)) {
     Serial.println("Init FAILURE: halting");
     while (true) {};
   }
-  Serial.println(F("LED Stripe added"));
   digitalLeds_resetPixels((strand_t**) &stripes, 1);
   activeColor = defaultColor;
   // Start Animation
