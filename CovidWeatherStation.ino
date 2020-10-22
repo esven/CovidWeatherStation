@@ -155,7 +155,7 @@ void setup() {
   
   //manager.erase();// This will erase the stored passwords
   manager.setupScan();
-  setup_corona_api(8);
+  setup_corona_api(71);
   
   delay(1000);
   stripe.pixels[1] = pixelFromRGB(30, 5, 0);
