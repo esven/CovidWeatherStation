@@ -22,6 +22,7 @@ strand_t stripe = {.rmtChannel = 0, .gpioNum = 12, .ledType = LED_WS2812B_V1, .b
                    .numPixels = NumPix,
                    .pixels = nullptr, ._stateVars = nullptr
                   };
+strand_t* stripes[] = { &stripe };
 
 // ColorSettings for enlighted and non-shining pixels
 pixelColor_t activeColor ;                                // the currently active color
@@ -136,17 +137,23 @@ void setup() {
   */
 
   // LED Stripe
-  if (digitalLeds_initStrands(&stripe, 1)) {
+  if (digitalLeds_initDriver()) {
     Serial.println("Init FAILURE: halting");
     while (true) {};
   }
-  digitalLeds_resetPixels(&stripe);
+  Serial.println(F("LED Driver initialized"));
+  if (digitalLeds_addStrands((strand_t**) &stripes, 1)) {
+    Serial.println("Init FAILURE: halting");
+    while (true) {};
+  }
+  Serial.println(F("LED Stripe added"));
+  digitalLeds_resetPixels((strand_t**) &stripes, 1);
   activeColor = defaultColor;
   // Start Animation
   stripe.pixels[0] = pixelFromRGB(15, 2, 0);
   stripe.pixels[20] = pixelFromRGB(15, 2, 0);
   stripe.pixels[40] = pixelFromRGB(15, 2, 0);
-  digitalLeds_updatePixels(&stripe);
+  digitalLeds_drawPixels((strand_t**) &stripes, 1);
   
   //manager.erase();// This will erase the stored passwords
   manager.setupScan();
@@ -156,7 +163,7 @@ void setup() {
   stripe.pixels[1] = pixelFromRGB(30, 5, 0);
   stripe.pixels[21] = pixelFromRGB(30, 5, 0);
   stripe.pixels[41] = pixelFromRGB(30, 5, 0);
-  digitalLeds_updatePixels(&stripe);
+  digitalLeds_drawPixels((strand_t**) &stripes, 1);
   delay(1000);
   /* Wait until first Hmi Switch for 10s */
   nextHmiSwitch = millis() + 10000ul;
@@ -318,7 +325,7 @@ void updateCovidLEDs(uint16_t inzidenz) {
   // pressure
   setLEDPixels(inzidenz, 41, 59, 70, 105, 70, 80, dimmPercent);
   }
-  digitalLeds_updatePixels(&stripe);
+  digitalLeds_drawPixels((strand_t**) &stripes, 1);
 }
 
 void updateLEDs(ClimaData climaDateSet) {
@@ -363,7 +370,7 @@ void updateLEDs(ClimaData climaDateSet) {
       stripe.pixels[TrendAnimationPos / 10 ] = dimmedColor;
     }
   }
-  digitalLeds_updatePixels(&stripe);
+  digitalLeds_drawPixels((strand_t**) &stripes, 1);
 }
 
 void setLEDPixels(int climaValue, int minLED, int maxLED, int minValue, int maxValue, int refLSL, int refUSL, int dimmPercent) {
